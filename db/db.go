@@ -59,10 +59,18 @@ type TaskDB struct {
 }
 
 func (t *TaskDB) TableExists(table string) bool {
-	if _, err := t.Db.Exec("SELECT * FROM ?", table); err == nil {
-		return true
+	stmt, err := t.Db.Prepare("SELECT name FROM sqlite_master WHERE type='table' AND name=?")
+	if err != nil {
+		return false
 	}
-	return false
+	defer stmt.Close()
+
+	var name string
+	err = stmt.QueryRow(table).Scan(&name)
+	if err != nil {
+		return false
+	}
+	return true
 }
 
 func (t *TaskDB) CreateTable() error {

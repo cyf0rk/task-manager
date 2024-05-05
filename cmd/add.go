@@ -7,7 +7,6 @@ package cmd
 import (
 	"task-manager/utils"
 	"github.com/spf13/cobra"
-	_ "github.com/mattn/go-sqlite3"
 )
 
 // addCmd represents the add command

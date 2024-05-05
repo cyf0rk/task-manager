@@ -57,10 +57,5 @@ func openDB(path string) (*taskDB, error) {
 }
 
 func main() {
-	taskDir := setupPath()
-	t, err := openDB(taskDir)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer t.db.Close()
+	return
 }

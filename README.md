@@ -9,15 +9,15 @@
     - [x] get tasks
 
 ### Making a CLI with [Cobra][cobra]
-- [ ] add CLI
-    - [ ] add task
-    - [ ] delete task
-    - [ ] edit task
-    - [ ] get tasks
+- [s] add CLI
+    - [s] add task
+    - [s] delete task
+    - [s] edit task
+    - [s] get tasks
 
 ### Add a little... *Je ne sais quoi*
-- [ ] print to table layout with [Lip Gloss][lipgloss]
-- [ ] print to Kaban layout with [Lip Gloss][lipgloss]
+- [s] print to table layout with [Lip Gloss][lipgloss]
+- [s] print to Kaban layout with [Lip Gloss][lipgloss]
 
 ## Project layout
 

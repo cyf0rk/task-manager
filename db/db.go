@@ -26,6 +26,11 @@ type Task struct {
 	Created time.Time
 }
 
+// implement list.Item & list.DefaultItem
+func (t Task) FilterValue() string {
+	return t.Name
+}
+
 func (t Task) Title() string {
 	return t.Name
 }

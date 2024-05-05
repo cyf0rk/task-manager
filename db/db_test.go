@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -11,10 +11,10 @@ import (
 
 func TestGetTask(t *testing.T) {
 	tests := []struct {
-		want task
+		want Task
 	}{
 		{
-			want: task{
+			want: Task{
 				ID:      1,
 				Name:    "finish script",
 				Project: "development",
@@ -26,10 +26,10 @@ func TestGetTask(t *testing.T) {
 		t.Run("GetTask", func(t *testing.T) {
 			db := setup()
 			defer teardown(db)
-			if err := db.insert(tt.want.Name, tt.want.Project); err != nil {
+			if err := db.Insert(tt.want.Name, tt.want.Project); err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
-			task, err := db.getTask(tt.want.ID)
+			task, err := db.GetTask(tt.want.ID)
 			if err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
@@ -43,10 +43,10 @@ func TestGetTask(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	tests := []struct {
-		want task
+		want Task
 	}{
 		{
-			want: task{
+			want: Task{
 				ID:      1,
 				Name:    "finish script",
 				Project: "development",
@@ -58,10 +58,10 @@ func TestDelete(t *testing.T) {
 		t.Run("GetTask", func(t *testing.T) {
 			db := setup()
 			defer teardown(db)
-			if err := db.insert(tt.want.Name, tt.want.Project); err != nil {
+			if err := db.Insert(tt.want.Name, tt.want.Project); err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
-			tasks, err := db.getTasks()
+			tasks, err := db.GetTasks()
 			if err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
@@ -69,10 +69,10 @@ func TestDelete(t *testing.T) {
 			if !reflect.DeepEqual(tasks[0], tt.want) {
 				t.Errorf("getTask() got = %v, want %v", tasks, tt.want)
 			}
-			if err := db.delete(tt.want.ID); err != nil {
+			if err := db.Delete(tt.want.ID); err != nil {
 				t.Fatalf("Unable to delete tasks: %v", err)
 			}
-			tasks, err = db.getTasks()
+			tasks, err = db.GetTasks()
 			if err != nil {
 				t.Fatalf("Unable to get tasks: %v", err)
 			}
@@ -85,10 +85,10 @@ func TestDelete(t *testing.T) {
 
 func TestGetTasksByStatus(t *testing.T) {
 	tests := []struct {
-		want task
+		want Task
 	}{
 		{
-			want: task{
+			want: Task{
 				ID:      1,
 				Name:    "finish script",
 				Project: "development",
@@ -100,10 +100,10 @@ func TestGetTasksByStatus(t *testing.T) {
 		t.Run("GetTaskByStatus", func(t *testing.T) {
 			db := setup()
 			defer teardown(db)
-			if err := db.insert(tt.want.Name, tt.want.Project); err != nil {
+			if err := db.Insert(tt.want.Name, tt.want.Project); err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
-			tasks, err := db.getTasksByStatus(tt.want.Status)
+			tasks, err := db.GetTasksByStatus(tt.want.Status)
 			if err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
@@ -120,10 +120,10 @@ func TestGetTasksByStatus(t *testing.T) {
 
 func TestUpdate(t *testing.T) {
 	tests := []struct {
-		want task
+		want Task
 	}{
 		{
-			want: task{
+			want: Task{
 				ID:      1,
 				Name:    "finish script",
 				Project: "development",
@@ -135,10 +135,10 @@ func TestUpdate(t *testing.T) {
 		t.Run("Update", func(t *testing.T) {
 			db := setup()
 			defer teardown(db)
-			if err := db.insert(tt.want.Name, tt.want.Project); err != nil {
+			if err := db.Insert(tt.want.Name, tt.want.Project); err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
-			tasks, err := db.getTasks()
+			tasks, err := db.GetTasks()
 			if err != nil {
 				t.Fatalf("We run into unexpected error: %v", err)
 			}
@@ -147,10 +147,10 @@ func TestUpdate(t *testing.T) {
 				t.Errorf("getTasks() got = %v, want %v", tasks, tt.want)
 			}
 			tasks[0].Status = done.String()
-			if err := db.update(tasks[0]); err != nil {
+			if err := db.Update(tasks[0]); err != nil {
 				t.Fatalf("Unable to update tasks: %v", err)
 			}
-			tasks, err = db.getTasks()
+			tasks, err = db.GetTasks()
 			if err != nil {
 				t.Fatalf("Unable to get tasks: %v", err)
 			}
@@ -164,11 +164,11 @@ func TestUpdate(t *testing.T) {
 func TestMerge(t *testing.T) {
 	tests := []struct {
 		name string
-		want task
+		want Task
 	}{
 		{
 			name: "merge name",
-			want: task{
+			want: Task{
 				ID:      1,
 				Name:    "finish script",
 				Project: "development",
@@ -177,7 +177,7 @@ func TestMerge(t *testing.T) {
 		},
 		{
 			name: "merge project",
-			want: task{
+			want: Task{
 				ID:      1,
 				Name:    "finish script",
 				Project: "development",
@@ -186,7 +186,7 @@ func TestMerge(t *testing.T) {
 		},
 		{
 			name: "merge status",
-			want: task{
+			want: Task{
 				ID:      1,
 				Name:    "finish script",
 				Project: "development",
@@ -196,14 +196,14 @@ func TestMerge(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			var orig task
+			var orig Task
 			orig.ID = 1
 			orig.Name = "write script"
 			orig.Project = "development"
 			orig.Status = todo.String()
 			orig.Created = "2020-01-01 00:00:00"
 			tt.want.Created = "2020-01-01 00:00:00"
-			orig.merge(tt.want)
+			orig.Merge(tt.want)
 			if !reflect.DeepEqual(orig, tt.want) {
 				t.Errorf("merge() got = %v, want %v", orig, tt.want)
 			}
@@ -211,22 +211,22 @@ func TestMerge(t *testing.T) {
 	}
 }
 
-func setup() *taskDB {
+func setup() *TaskDB {
 	path := filepath.Join(os.TempDir(), "test.db")
 	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		log.Fatal(err)
 	}
-	t := taskDB{db, path}
-	if !t.tableExists("tasks") {
-		if err := t.createTable(); err != nil {
+	t := TaskDB{db, path}
+	if !t.TableExists("tasks") {
+		if err := t.CreateTable(); err != nil {
 			log.Fatal(err)
 		}
 	}
 	return &t
 }
 
-func teardown(t *taskDB) {
-	t.db.Close()
-	os.Remove(t.dataDir)
+func teardown(t *TaskDB) {
+	t.Db.Close()
+	os.Remove(t.DataDir)
 }

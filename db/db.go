@@ -1,4 +1,4 @@
-package main
+package db
 
 import (
 	"database/sql"
@@ -18,7 +18,7 @@ func (s status) String() string {
 	return [...]string{"todo", "in progress", "done"}[s]
 }
 
-type task struct {
+type Task struct {
 	ID      int
 	Name    string
 	Project string
@@ -26,11 +26,11 @@ type task struct {
 	Created string
 }
 
-func (t task) Title() string {
+func (t Task) Title() string {
 	return t.Name
 }
 
-func (t task) Description() string {
+func (t Task) Description() string {
 	return t.Project
 }
 
@@ -53,26 +53,26 @@ func (s status) Int() int {
 	return int(s)
 }
 
-type taskDB struct {
-	db *sql.DB
-	dataDir string
+type TaskDB struct {
+	Db *sql.DB
+	DataDir string
 }
 
-func (t *taskDB) tableExists(table string) bool {
-	if _, err := t.db.Exec("SELECT * FROM ?", table); err == nil {
+func (t *TaskDB) TableExists(table string) bool {
+	if _, err := t.Db.Exec("SELECT * FROM ?", table); err == nil {
 		return true
 	}
 	return false
 }
 
-func (t *taskDB) createTable() error {
-	_, err := t.db.Exec(`CREATE TABLE "tasks" ("id" INTEGER, "name" TEXT NOT NULL, "project" TEXT,
+func (t *TaskDB) CreateTable() error {
+	_, err := t.Db.Exec(`CREATE TABLE "tasks" ("id" INTEGER, "name" TEXT NOT NULL, "project" TEXT,
 status TEXT, "created" DATE, PRIMARY KEY("id" AUTOINCREMENT))`)
 	return err
 }
 
-func (t *taskDB) insert(name, project string) error {
-	_, err := t.db.Exec(
+func (t *TaskDB) Insert(name, project string) error {
+	_, err := t.Db.Exec(
 		"INSERT INTO tasks (name, project, status, created) VALUES (?, ?, ?, ?)",
 		name,
 		project,
@@ -81,14 +81,14 @@ func (t *taskDB) insert(name, project string) error {
 	return err
 }
 
-func (t *taskDB) update(task task) error {
+func (t *TaskDB) Update(task Task) error {
 	// Get the existing state of the task we want to update
-	orig, err := t.getTask(task.ID)
+	orig, err := t.GetTask(task.ID)
 	if err != nil {
 		return err
 	}
-	orig.merge(task)
-	_, err = t.db.Exec(
+	orig.Merge(task)
+	_, err = t.Db.Exec(
 		"UPDATE tasks SET name=?, project=?, status=? WHERE id=?",
 		orig.Name,
 		orig.Project,
@@ -97,7 +97,7 @@ func (t *taskDB) update(task task) error {
 	return err
 }
 
-func (orig *task) merge(t task) {
+func (orig *Task) Merge(t Task) {
 	uValues := reflect.ValueOf(&t).Elem()
 	oValues := reflect.ValueOf(orig).Elem()
 	for i := 0; i < uValues.NumField(); i++ {
@@ -113,21 +113,21 @@ func (orig *task) merge(t task) {
 	}
 }
 
-func (t *taskDB) delete(id int) error {
-	_, err := t.db.Exec("DELETE FROM tasks WHERE id=?", id)
+func (t *TaskDB) Delete(id int) error {
+	_, err := t.Db.Exec("DELETE FROM tasks WHERE id=?", id)
 	return err
 }
 
-func (t *taskDB) getTasks() ([]task, error) {
-	rows, err := t.db.Query("SELECT * FROM tasks")
+func (t *TaskDB) GetTasks() ([]Task, error) {
+	rows, err := t.Db.Query("SELECT * FROM tasks")
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var tasks []task
+	var tasks []Task
 	for rows.Next() {
-		var t task
+		var t Task
 		err := rows.Scan(&t.ID, &t.Name, &t.Project, &t.Status, &t.Created)
 		if err != nil {
 			return nil, err
@@ -137,16 +137,16 @@ func (t *taskDB) getTasks() ([]task, error) {
 	return tasks, nil
 }
 
-func (t *taskDB) getTasksByStatus(status string) ([]task, error) {
-	rows, err := t.db.Query("SELECT * FROM tasks WHERE status=?", status)
+func (t *TaskDB) GetTasksByStatus(status string) ([]Task, error) {
+	rows, err := t.Db.Query("SELECT * FROM tasks WHERE status=?", status)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var tasks []task
+	var tasks []Task
 	for rows.Next() {
-		var t task
+		var t Task
 		err := rows.Scan(&t.ID, &t.Name, &t.Project, &t.Status, &t.Created)
 		if err != nil {
 			return nil, err
@@ -156,8 +156,8 @@ func (t *taskDB) getTasksByStatus(status string) ([]task, error) {
 	return tasks, nil
 }
 
-func (t *taskDB) getTask(id int) (task, error) {
-	var task task
-	err := t.db.QueryRow("SELECT * FROM tasks WHERE id=?", id).Scan(&task.ID, &task.Name, &task.Project, &task.Status, &task.Created)
+func (t *TaskDB) GetTask(id int) (Task, error) {
+	var task Task
+	err := t.Db.QueryRow("SELECT * FROM tasks WHERE id=?", id).Scan(&task.ID, &task.Name, &task.Project, &task.Status, &task.Created)
 	return task, err
 }

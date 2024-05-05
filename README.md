@@ -21,12 +21,12 @@
 
 ## Project layout
 
-`db.go` - here we create our custom `task` struct and our data layer.
+`db/db.go` - here we create our custom `task` struct and our data layer.
 
-`main.go` - our main file handles our initial setup including opening a
+`utils/utils.go` - utility functions handle our setup including opening a
 database and setting the data path for our application.
 
-`cmds.go` - this is where we do all of our Cobra commands and setup for our CLI.
+`cmd/` - this is where we do all of our Cobra commands and setup for our CLI.
 
 [lipgloss]: https://github.com/charmbracelet/lipgloss
 [cobra]: https://github.com/spf13/cobra

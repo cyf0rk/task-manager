@@ -1,12 +1,12 @@
 ## Checklist
 
 ### Data Storage
-- [ ] set up a SQLite database
-    - [ ] open SQLite DB
-    - [ ] add task
-    - [ ] delete task
-    - [ ] edit task
-    - [ ] get tasks
+- [x] set up a SQLite database
+    - [x] open SQLite DB
+    - [x] add task
+    - [x] delete task
+    - [x] edit task
+    - [x] get tasks
 
 ### Making a CLI with [Cobra][cobra]
 - [ ] add CLI

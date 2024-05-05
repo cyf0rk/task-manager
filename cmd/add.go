@@ -20,8 +20,11 @@ var addCmd = &cobra.Command{
 			return err
 		}
 		defer t.Db.Close()
-
-		if err := t.Insert(args[0], args[1]); err != nil {
+		project, err := cmd.Flags().GetString("project")
+		if err != nil {
+			return err
+		}
+		if err := t.Insert(args[0], project); err != nil {
 			return err
 		}
 		return nil

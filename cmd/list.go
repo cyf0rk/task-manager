@@ -38,7 +38,7 @@ func setupTable(tasks []db.Task) *table.Table {
 			task.Name,
 			task.Project,
 			task.Status,
-			task.Created,
+			task.Created.Format("2006-01-02 15:04:05"),
 		})
 	}
 	t := table.New().

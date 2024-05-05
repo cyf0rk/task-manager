@@ -9,9 +9,9 @@ import (
 type status int
 
 const (
-	todo status = iota
-	inProgress
-	done
+	TODO status = iota
+	INPROGRESS
+	DONE
 )
 
 func (s status) String() string {
@@ -23,7 +23,7 @@ type Task struct {
 	Name    string
 	Project string
 	Status  string
-	Created string
+	Created time.Time
 }
 
 func (t Task) Title() string {
@@ -36,15 +36,15 @@ func (t Task) Description() string {
 
 // kancli.Status
 func (s status) Next() int {
-	if s == done {
-		return todo.Int()
+	if s == DONE {
+		return TODO.Int()
 	}
 	return s.Int() + 1
 }
 
 func (s status) Prev() int {
-	if s == todo {
-		return done.Int()
+	if s == TODO {
+		return DONE.Int()
 	}
 	return s.Int() - 1
 }
@@ -84,7 +84,7 @@ func (t *TaskDB) Insert(name, project string) error {
 		"INSERT INTO tasks (name, project, status, created) VALUES (?, ?, ?, ?)",
 		name,
 		project,
-		todo.String(),
+		TODO.String(),
 		time.Now())
 	return err
 }
